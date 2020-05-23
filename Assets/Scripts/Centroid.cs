@@ -9,9 +9,11 @@ public class Centroid : MonoBehaviour
     private Vector3 targetPos;
     private Vector3 prevLoc;
     private static int inde = 0;
+    private int no;
     private void Start()
     {
         inde += 1;
+        no = inde;
         OnPosition = true;
         targetPos = transform.position;
         Dots = new List<Dot>();
@@ -20,12 +22,13 @@ public class Centroid : MonoBehaviour
 
     private void Update()
     {
-        if (!OnPosition)
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, 0.8f * Time.deltaTime);
+        if (!OnPosition && GoDotsCenterPos())
+            //transform.position = targetPos;
+            transform.position = Vector3.MoveTowards(prevLoc, targetPos, 1.5f * Time.deltaTime);
         if (targetPos - transform.position == Vector3.zero)
         {
             OnPosition = true;
-            transform.position += new Vector3(0.1f, 0);
+            transform.position += new Vector3(0.2f, 0);
             SetDots();
         }
     }
@@ -38,7 +41,7 @@ public class Centroid : MonoBehaviour
 
     private void SetDots()
     {
-        Dots.Clear();
+        //Dots.Clear();
         foreach(Dot d in FindObjectOfType<KMeans>().Dots)
         {
             d.ConnectionToCentroid();
@@ -46,13 +49,19 @@ public class Centroid : MonoBehaviour
 
     }
 
-    public void GoDotsCenterPos()
+    public bool GoDotsCenterPos()
     {
-        prevLoc = transform.position;
-        targetPos = CalculateCenter();
-        if (Vector3.Distance(prevLoc, targetPos) <= 0.2f)
-            return;
+        Vector3 tmpPrevPos = transform.position;
+        //prevLoc = transform.position;
+        Vector3 tmpPos = CalculateCenter();
+        //targetPos = CalculateCenter();
+        if (Vector3.Distance(tmpPrevPos, tmpPos) <= 0.1f)
+            return false;
+        Debug.Log(no + " -> Dot Count : " + Dots.Count);
+        targetPos = tmpPos;
+        prevLoc = tmpPrevPos;
         OnPosition = false;
+        return true;
     }
 
     private Vector3 CalculateCenter()

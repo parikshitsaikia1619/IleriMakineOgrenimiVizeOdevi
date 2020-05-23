@@ -19,8 +19,8 @@ public class Dot : MonoBehaviour
     public void GoLocation(Vector3 t)
     {
         target = t;
-        transform.position = Vector3.MoveTowards(transform.position, target, 2f * Time.deltaTime);
-        //transform.position = t;
+        //transform.position = Vector3.MoveTowards(transform.position, target, 2f * Time.deltaTime);
+        transform.position = t;
     }
 
     private void Update()
@@ -31,23 +31,31 @@ public class Dot : MonoBehaviour
         }
         if (transform.position - target == Vector3.zero)
             OnPosition = true;
-        if (OnPosition)
+        /*if (OnPosition)
             ConnectionToCentroid();
+    */
+        ConnectionToCentroid();
     }
 
     public void ConnectionToCentroid()
     {
         float min = Vector3.Distance(manager.Centroids[0].transform.position, transform.position);
-        ItsGroup = manager.Centroids[0];
+        Centroid tmp = manager.Centroids[0];
+        //ItsGroup = manager.Centroids[0];
         foreach(Centroid c in manager.Centroids)
         {
             float distance = Vector3.Distance(c.transform.position, transform.position);
             if(distance < min)
             {
                 min = distance;
-                ItsGroup = c;
+                tmp = c;
             }
         }
+        if (ItsGroup != null && ItsGroup.gameObject == tmp.gameObject)
+            return;
+        if(ItsGroup != null)
+            ItsGroup.Dots.Remove(this);
+        ItsGroup = tmp;
         ItsGroup.AddDot(this);
         GetComponent<Renderer>().material.color = ItsGroup.GetComponent<Renderer>().material.color;
     }
